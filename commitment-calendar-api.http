@@ -1,0 +1,6 @@
+@commitment_calendar_api_HostAddress = http://localhost:5118
+
+GET {{commitment_calendar_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

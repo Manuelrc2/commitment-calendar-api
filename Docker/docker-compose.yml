@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: commitment-calendar-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Mdlrccca2!!  # Change this to a secure password
+      - MSSQL_PID=Express  # Use Developer or Enterprise for more features
+    ports:
+      - "1433:1433"  # Maps host port 1433 to container port 1433
+    volumes:
+      - sqlserver-data:/var/opt/mssql  # Persists data between container restarts
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:
+    # Named volume for persistent data storage
+
+networks:
+  app-network:
+    driver: bridge
