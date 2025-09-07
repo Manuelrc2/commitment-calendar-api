@@ -16,7 +16,6 @@ namespace commitment_calendar_api.Persistence
         {
             modelBuilder.Entity<Appointment>(entity =>
             {
-                // NECESSARY CONFIGURATIONS
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(200);
@@ -31,8 +30,8 @@ namespace commitment_calendar_api.Persistence
                 entity.Property(e => e.Stake)
                     .HasPrecision(18, 2);
 
-                entity.HasIndex(e => new { e.UserId, e.StartsAt })
-                    .IncludeProperties(e => new { e.Name, e.Description, e.EndsAt, e.Stake });
+                entity.HasIndex(e => new { e.UserId, e.IsDeleted, e.StartsAt })
+                    .IncludeProperties(e => new { e.AppointmentId, e.Name, e.Description, e.EndsAt, e.Stake });
 
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.StartsAt);

@@ -2,6 +2,8 @@
 using commitment_calendar_api.Entities;
 using commitment_calendar_api.Interfaces;
 using commitment_calendar_api.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace commitment_calendar_api.Services
 {
@@ -12,9 +14,10 @@ namespace commitment_calendar_api.Services
         {
             _applicationDbContext = applicationDbcontext;
         }
-        public MonthCalendar GetCalendarByUserAndDate(string userId, DateTime date)
+        public async Task<MonthCalendar> GetCalendarByUserAndDate(string userId, DateTime date, string timezone)
         {
-            Appointment[] appointments = _applicationDbContext.Appointments.Where(appointment => appointment.UserId == userId && appointment.StartsAt > date).OrderBy(appointment => appointment.StartsAt).ToArray();
+            Appointment[] appointments = await _applicationDbContext.Appointments.Where(appointment => appointment.UserId == userId && !appointment.IsDeleted && appointment.StartsAt.Month == date.Month).OrderBy(appointment => appointment.StartsAt).ToArrayAsync();
+            ConvertDatesFromTimezone(appointments, timezone);
             MonthCalendar calendar = GetEmptlyCalendar(date);
             Dictionary<int, List<AppointmentDto>> appoimentsGrouped = GroupAppointmentsByDate(appointments);
             if (appointments.Length == 0)
@@ -29,6 +32,40 @@ namespace commitment_calendar_api.Services
                 }
             }
             return calendar;
+        }
+        public async Task CreateAppointment(string userId, AppointmentDto appointmentDto)
+        {
+            if (string.IsNullOrEmpty(appointmentDto.Name))
+            {
+                throw new ValidationException("Name has to be filled out");
+            }
+            if (appointmentDto.Stake == 0)
+            {
+                throw new ValidationException("Stake has to be filled out");
+            }
+            var appointment = new Appointment()
+            {
+                UserId = userId,
+                Name = appointmentDto.Name,
+                Description = appointmentDto.Description,
+                Stake = appointmentDto.Stake,
+                StartsAt = appointmentDto.StartsAt,
+                EndsAt = appointmentDto.EndsAt,
+            };
+            _applicationDbContext.Appointments.Add(appointment);
+            await _applicationDbContext.SaveChangesAsync();
+        }
+        public async Task DeleteAppointment(string userId, long id)
+        {
+            var appointment = await _applicationDbContext.Appointments
+                .Where(appointment => appointment.AppointmentId == id && appointment.UserId == userId)
+                .FirstOrDefaultAsync();
+            if (appointment == null)
+            {
+                throw new Exception("No appointment was found with that id");
+            }
+            appointment.IsDeleted = true;
+            await _applicationDbContext.SaveChangesAsync();
         }
         private MonthCalendar GetEmptlyCalendar(DateTime date)
         {
@@ -57,6 +94,7 @@ namespace commitment_calendar_api.Services
                 int day = appointment.StartsAt.Day;
                 AppointmentDto appointmentDto = new AppointmentDto()
                 {
+                    Id = appointment.AppointmentId,
                     Name = appointment.Name,
                     Description = appointment.Description,
                     Stake = appointment.Stake,
@@ -73,6 +111,15 @@ namespace commitment_calendar_api.Services
                 }
             }
             return appoimentsGrouped;
+        }
+        private void ConvertDatesFromTimezone(Appointment[] appointments, string timezone)
+        {
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+            foreach (var appointment in appointments)
+            {
+                appointment.StartsAt = TimeZoneInfo.ConvertTimeFromUtc(appointment.StartsAt, timeZoneInfo);
+                appointment.EndsAt = TimeZoneInfo.ConvertTimeFromUtc(appointment.EndsAt, timeZoneInfo);
+            }
         }
     }
 }
