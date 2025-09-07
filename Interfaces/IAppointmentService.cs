@@ -4,6 +4,8 @@ namespace commitment_calendar_api.Interfaces
 {
     public interface IAppointmentService
     {
-        MonthCalendar GetCalendarByUserAndDate(string userId, DateTime date);
+        Task<MonthCalendar> GetCalendarByUserAndDate(string userId, DateTime date, string timezone);
+        Task CreateAppointment(string userId, AppointmentDto appointmentDto);
+        Task DeleteAppointment(string userId, long id);
     }
 }

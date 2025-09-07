@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using commitment_calendar_api.Persistence;
 
@@ -11,9 +12,11 @@ using commitment_calendar_api.Persistence;
 namespace commitment_calendar_api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250903190755_ChangeUserIdFromIntToLong")]
+    partial class ChangeUserIdFromIntToLong
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +41,6 @@ namespace commitment_calendar_api.Migrations
                     b.Property<DateTime>("EndsAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -64,9 +64,9 @@ namespace commitment_calendar_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("UserId", "IsDeleted", "StartsAt");
+                    b.HasIndex("UserId", "StartsAt");
 
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("UserId", "IsDeleted", "StartsAt"), new[] { "AppointmentId", "Name", "Description", "EndsAt", "Stake" });
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("UserId", "StartsAt"), new[] { "AppointmentId", "Name", "Description", "EndsAt", "Stake" });
 
                     b.ToTable("Appointments");
                 });
