@@ -67,6 +67,32 @@ namespace commitment_calendar_api.Services
             appointment.IsDeleted = true;
             await _applicationDbContext.SaveChangesAsync();
         }
+        public async Task UpdateAppointment(string userId, AppointmentDto appointmentDto)
+        {
+            if (string.IsNullOrEmpty(appointmentDto.Name))
+            {
+                throw new ValidationException("Name has to be filled out");
+            }
+            if (appointmentDto.Stake == 0)
+            {
+                throw new ValidationException("Stake has to be filled out");
+            }
+            var appointment = await _applicationDbContext.Appointments
+                .Where(appointment => appointment.AppointmentId == appointmentDto.Id && !appointment.IsDeleted && appointment.UserId == userId)
+                .FirstOrDefaultAsync();
+            if (appointment == null)
+            {
+                throw new ValidationException("No appointment was found with that id");
+            }
+
+            appointment.Name = appointmentDto.Name;
+            appointment.Description = appointmentDto.Description;
+            appointment.Stake = appointmentDto.Stake;
+            appointment.StartsAt = appointmentDto.StartsAt;
+            appointment.EndsAt = appointmentDto.EndsAt;
+
+            await _applicationDbContext.SaveChangesAsync();
+        }
         private MonthCalendar GetEmptlyCalendar(DateTime date)
         {
             int daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);

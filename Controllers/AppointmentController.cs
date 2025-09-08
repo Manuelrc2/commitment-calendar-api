@@ -37,7 +37,7 @@ namespace commitment_calendar_api.Controllers
             }
         }
         [HttpPost("CreateAppointment")]
-        public async Task<ActionResult> CreateAppointment(AppointmentDto appointmentDto)
+        public async Task<ActionResult> CreateAppointment([FromBody]AppointmentDto appointmentDto)
         {
             try
             {
@@ -80,6 +80,35 @@ namespace commitment_calendar_api.Controllers
                     Type = "Bad Request",
                     Title = "Bad Request",
                     Detail = exception.Message,
+                    Status = StatusCodes.Status400BadRequest
+                });
+            }
+        }
+        [HttpPut("UpdateAppointment")]
+        public async Task<ActionResult> UpdateAppointment([FromBody] AppointmentDto appointmentDto)
+        {
+            try
+            {
+                await _appointmentService.UpdateAppointment(User.FindFirstValue(ClaimTypes.NameIdentifier)!, appointmentDto);
+                return Ok();
+            }
+            catch (Exceptions.ValidationException validationException)
+            {
+                return BadRequest(new ProblemDetails()
+                {
+                    Type = "Bad Request",
+                    Title = "Validation failed",
+                    Detail = validationException.Message,
+                    Status = StatusCodes.Status400BadRequest
+                });
+            }
+            catch (Exception exception)
+            {
+                return StatusCode(500, new ProblemDetails()
+                {
+                    Type = "Internal Server Error",
+                    Title = "Internal Server Error",
+                    Detail = "An error occurred while saving the data",
                     Status = StatusCodes.Status400BadRequest
                 });
             }
