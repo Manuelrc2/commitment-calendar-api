@@ -24,8 +24,7 @@ namespace commitment_calendar_api.Persistence
                     .HasMaxLength(1000);
 
                 entity.Property(e => e.UserId)
-                    .IsRequired()
-                    .HasMaxLength(450);
+                    .IsRequired();
 
                 entity.Property(e => e.Stake)
                     .HasPrecision(18, 2);
