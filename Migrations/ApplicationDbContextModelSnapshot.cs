@@ -46,6 +46,9 @@ namespace commitment_calendar_api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<bool>("NotificationSent")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Stake")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -53,10 +56,8 @@ namespace commitment_calendar_api.Migrations
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("AppointmentId");
 
@@ -73,11 +74,11 @@ namespace commitment_calendar_api.Migrations
 
             modelBuilder.Entity("commitment_calendar_api.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -100,6 +101,17 @@ namespace commitment_calendar_api.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("commitment_calendar_api.Entities.Appointment", b =>
+                {
+                    b.HasOne("commitment_calendar_api.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

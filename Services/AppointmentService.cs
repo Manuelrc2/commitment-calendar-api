@@ -14,7 +14,7 @@ namespace commitment_calendar_api.Services
         {
             _applicationDbContext = applicationDbcontext;
         }
-        public async Task<MonthCalendar> GetCalendarByUserAndDate(string userId, DateTime date, string timezone)
+        public async Task<MonthCalendar> GetCalendarByUserAndDate(long userId, DateTime date, string timezone)
         {
             Appointment[] appointments = await _applicationDbContext.Appointments.Where(appointment => appointment.UserId == userId && !appointment.IsDeleted && appointment.StartsAt.Month == date.Month).OrderBy(appointment => appointment.StartsAt).ToArrayAsync();
             ConvertDatesFromTimezone(appointments, timezone);
@@ -33,7 +33,7 @@ namespace commitment_calendar_api.Services
             }
             return calendar;
         }
-        public async Task CreateAppointment(string userId, AppointmentDto appointmentDto)
+        public async Task CreateAppointment(long userId, AppointmentDto appointmentDto)
         {
             if (string.IsNullOrEmpty(appointmentDto.Name))
             {
@@ -55,7 +55,7 @@ namespace commitment_calendar_api.Services
             _applicationDbContext.Appointments.Add(appointment);
             await _applicationDbContext.SaveChangesAsync();
         }
-        public async Task DeleteAppointment(string userId, long id)
+        public async Task DeleteAppointment(long userId, long id)
         {
             var appointment = await _applicationDbContext.Appointments
                 .Where(appointment => appointment.AppointmentId == id && appointment.UserId == userId)
@@ -67,7 +67,7 @@ namespace commitment_calendar_api.Services
             appointment.IsDeleted = true;
             await _applicationDbContext.SaveChangesAsync();
         }
-        public async Task UpdateAppointment(string userId, AppointmentDto appointmentDto)
+        public async Task UpdateAppointment(long userId, AppointmentDto appointmentDto)
         {
             if (string.IsNullOrEmpty(appointmentDto.Name))
             {

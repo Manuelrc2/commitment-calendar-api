@@ -23,7 +23,7 @@ namespace commitment_calendar_api.Controllers
         {
             try
             {
-                return Ok(await _appointmentService.GetCalendarByUserAndDate(User.FindFirstValue(ClaimTypes.NameIdentifier)!, date, timezone));
+                return Ok(await _appointmentService.GetCalendarByUserAndDate(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), date, timezone));
             }
             catch (Exception exception)
             {
@@ -41,7 +41,7 @@ namespace commitment_calendar_api.Controllers
         {
             try
             {
-                await _appointmentService.CreateAppointment(User.FindFirstValue(ClaimTypes.NameIdentifier)!, appointmentDto);
+                await _appointmentService.CreateAppointment(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), appointmentDto);
                 return Ok();
             }
             catch (Exceptions.ValidationException validationException)
@@ -70,7 +70,7 @@ namespace commitment_calendar_api.Controllers
         {
             try
             {
-                await _appointmentService.DeleteAppointment(User.FindFirstValue(ClaimTypes.NameIdentifier)!, id);
+                await _appointmentService.DeleteAppointment(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), id);
                 return Ok();
             }
             catch (Exception exception)
@@ -89,7 +89,7 @@ namespace commitment_calendar_api.Controllers
         {
             try
             {
-                await _appointmentService.UpdateAppointment(User.FindFirstValue(ClaimTypes.NameIdentifier)!, appointmentDto);
+                await _appointmentService.UpdateAppointment(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), appointmentDto);
                 return Ok();
             }
             catch (Exceptions.ValidationException validationException)
